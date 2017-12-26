@@ -19,6 +19,8 @@ type SensorHandler struct {
     debug bool
 }
 
+const version = "1.0.0"
+
 // SensorInfoHandler provides HTTP handler for information about a sensor.
 func (sh *SensorHandler) SensorInfoHandler(w http.ResponseWriter, r *http.Request) {
     vars := mux.Vars(r)
@@ -67,36 +69,43 @@ func (sh *SensorHandler) SensorsListHandler(w http.ResponseWriter, r *http.Reque
 var run = flag.PrintDefaults
 
 func main() {
-    var debug, help bool
-    var address, root string
+    var argsDebug, argsHelp, argsVersion bool
+    var argsAddr, argsRoot string
 
     flag.StringVar(
-        &root, "root",
+        &argsRoot, "root",
         utils.GetEnv("TEMPREADER_ROOT", "/sys/bus/w1/devices"),
         "root directory with sensors")
     flag.StringVar(
-        &address, "addr",
+        &argsAddr, "addr",
         utils.GetEnv("TEMPREADER_ADDR", "0.0.0.0:8000"),
         "port or ip:port for the HTTP server")
     flag.BoolVar(
-        &debug, "debug",
+        &argsDebug, "debug",
         utils.GetEnvBool("TEMPREADER_DEBUG", false),
         "show more verbose output")
     flag.BoolVar(
-        &help, "help",
+        &argsHelp, "help",
         false,
         "show this help message and exit")
+    flag.BoolVar(
+        &argsVersion, "version",
+        false,
+        "show version and exit")
     flag.Parse()
 
-    if help {
+    if argsHelp {
         fmt.Printf("Usage of %s:\n", os.Args[0])
         run()
+        os.Exit(0)
+    } else if argsVersion {
+        fmt.Printf("tempreader v%s\n", version)
         os.Exit(0)
     }
 
     sh := SensorHandler{}
-    sh.Root = root
-    sh.debug = debug
+    sh.Root = argsRoot
+    sh.debug = argsDebug
 
     // Internal variable
     prefix := "/tempreader/api/v1.0"
@@ -108,10 +117,10 @@ func main() {
     s.HandleFunc("/{sensors:sensors(?:\\/)?}", sh.SensorsListHandler).Methods("GET")
     s.HandleFunc("/sensors/{id:[0-9a-f-]+(?:\\/)?}", sh.SensorInfoHandler).Methods("GET")
 
-    if debug {
-        log.Println("I: Running server on http://" + address)
+    if argsDebug {
+        log.Println("I: Running server on http://" + argsAddr)
     }
 
     // Bind to a port and pass our router in
-    log.Fatal(http.ListenAndServe(address, r))
+    log.Fatal(http.ListenAndServe(argsAddr, r))
 }
