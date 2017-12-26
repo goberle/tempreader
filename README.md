@@ -28,6 +28,8 @@ Usage of ./tempreader:
         show this help message and exit
   -root string
         root directory with sensors (default "/sys/bus/w1/devices")
+  -version
+        show version and exit
 ```
 
 Configurable via ENV variables:

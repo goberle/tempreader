@@ -15,10 +15,25 @@ before_script:
   - golint ./...
   - go vet ./...
   - go test -v -cover ./...
+  - if [ -n "$TRAVIS_TAG" ]; then go install && $GOPATH/bin/tempreader -version | egrep " $TRAVIS_TAG\$"; fi
 
 script:
   - go install
-  - $GOPATH/bin/tempreader -help
+  - "$GOPATH/bin/tempreader -help"
+  - if [ -n "$TRAVIS_TAG" ]; then dist/build.sh; fi
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: KXoEaV3EpOLto1sw+UKebAu+eEObn9HcynR6Xcm6GhB2eW+KVeO+WDXgkr+X9YnY5vunC3kTKJi73JioXy+ZwgCkTGYAyn+TLI43b2pFbYhtEiUiPBFIKgsLbCu874b4VUaVyXlAtWg5PpJgkvd9pczVHW4ZxxS1Iu4pXr0A3cuWjr7rqK04WYbpdkNVhDN2Zu/c9UgItxgWlRaFD2dOpOi6achq+2ksJbcRx7UK7CzMrwy6NfxIh3m8xkK0Hf0X/PERLcwLpqgsHYap2wYvExL+ih+5jQmcp21OXIaFYqantapkDLtO3KOQ5FiKYt3WSl65e435S8lDyHK7CHlB3Ekig78Y/wnt7UBvVGGaiQNcwJQbgYN5ghkRJA275TpGX+m+q8p+2iNJQuSfafLOOhfTOTkAKnvvlIof3svtwnY22JB/cAXqjkzTwFaMhJPzxWI8D/5yx3s0msNNDGwP3bXVwOlWwsMRH1x8IsJdLIO6YSmRRB4GQYNQmRG00xnHrT7rItj3mIZoU33lREjTJJZQ0xG7jqORutsOOx+Y6TzF9RISlsM5eJNjvKuNI2CFDKDS7TTBlmcOemzaNFLddNBDh5FlWO92jvRzJfaq3KbZWAUT54BnA1hiDXicBA+MBJW1+C744OeJoy+3wcmUvhSYN2dgJwwuyfk7OJUZcfw=
+    file_glob: true
+    file:
+      - /tmp/tempreader/*.tar.gz
+      - /tmp/tempreader/*.txt
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: jtyr/tempreader
 
 notifications:
   email: false
