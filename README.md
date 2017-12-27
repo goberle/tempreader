@@ -45,7 +45,7 @@ Testing:
 ```
 # Create testing data
 $ mkdir -p /tmp/tempreader/28-{000005e2fdc3,03168bf4edff}
-cat > /tmp/tempreader/28-000005e2fdc3/w1_slave <<END
+$ cat > /tmp/tempreader/28-000005e2fdc3/w1_slave <<END
 8c 01 4b 46 7f ff 0c 10 58 : crc=58 YES
 8c 01 4b 46 7f ff 0c 10 58 t=24750
 END
